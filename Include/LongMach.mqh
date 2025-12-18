@@ -1,6 +1,4 @@
-#define TypeBuy  "BUY"
-#define TypeSELL "SELL"
-#define TypeNULL "null"
+#include "Common.mqh"
 
 string CheckThreeCandlesPattern(string symbol)
 {
@@ -28,7 +26,7 @@ string CheckThreeCandlesPattern(string symbol)
 
     // xanh (xa nhất) - đỏ - đỏ (gần nhất) → SELL
     if(green_oldest && red_mid && red_latest)
-        return TypeBuy;
+        return TypeBUY;
 
     return TypeNULL;
 }
@@ -46,7 +44,7 @@ string CheckRSI57_43(string symbol, int periodRSI = 14)
 
    // RSI cắt lên 57 → BUY
    if(prevRSI < 65 && curRSI >= 65)
-      return TypeBuy;
+      return TypeBUY;
 
    // RSI cắt xuống 43 → SELL
    if(prevRSI > 35 && curRSI <= 35)
@@ -71,7 +69,7 @@ string CheckRSI57_43cac(string symbol, int periodRSI = 14)
 
    // RSI cắt lên 57 → BUY
    if(prevRSI < 67 && curRSI >= 67)
-      return TypeBuy;
+      return TypeBUY;
 
    // RSI cắt xuống 43 → SELL
    if(prevRSI > 33 && curRSI <= 33)
