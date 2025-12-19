@@ -2,9 +2,7 @@
 #include "Common.mqh"
 #define XANH "green"
 #define DO "red"
-// ===============================
-// Lưu trạng thái giá
-// ===============================
+
 struct PriceTrendState
 {
    double init_price;          
@@ -73,12 +71,10 @@ struct TrendResult
 };
 
 
-TrendResult AnalyzeTrendSignal(const PriceTrendState &state)
-{
+TrendResult AnalyzeTrendSignal(const PriceTrendState &state){
    TrendResult result;
    result.type  = "null";
    result.huong = "null";
-
    int n = state.count;
 
    // ========= 4 PHẦN TỬ CUỐI =========
@@ -142,42 +138,35 @@ TrendResult AnalyzeTrendSignal(const PriceTrendState &state)
       }
    }
 
-   return result; // => { type:"null", huong:"null" }
-
-
-         // ✅ 3️⃣ Cách dùng bên ngoài (rất rõ logic)
-         // TrendResult signal = AnalyzeTrendSignal(state);
-
-         // if(signal.type == "TX-song")
-         // {
-         //    if(signal.huong == "BUY")
-         //    {
-         //       Print("TX-song → BUY");
-         //    }
-         //    else if(signal.huong == "SELL")
-         //    {
-         //       Print("TX-song → SELL");
-         //    }
-
+   return result; 
 }
 
+void LogInitPrice(const PriceTrendState &state)
+{
+   if(!state.isSetPrice) return;
 
-// PriceTrendState trend;  // bến toàn cục
+   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
+   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
 
-// int OnInit()
-// {
-//    InitPriceTrendState(trend);
-//    return INIT_SUCCEEDED;
-// }
+   PrintFormat(
+      "Init= %.*f | ASK= %.*f | BID= %.*f",
+      _Digits, state.init_price,
+      _Digits, ask,
+      _Digits, bid
+   );
+}
+void LogTrendArray(const PriceTrendState &state)
+{
+   string log = "[";
 
-// void OnTick()
-// {
-//    UpdatePriceTrendState(trend, _Symbol);
+   for(int i = 0; i < state.count; i++)
+   {
+      log += "\"" + state.trend_list[i] + "\"";
+      if(i < state.count - 1)
+         log += ",";
+   }
 
-//    string signal = AnalyzeTrendSignal(trend);
+   log += "]";
+   Print("Trend array = ", log);
+}
 
-//    if(signal != "")
-//    {
-//       Print("=== TÍN HIỆU PHÁT HIỆN: ", signal);
-//    }
-// }
