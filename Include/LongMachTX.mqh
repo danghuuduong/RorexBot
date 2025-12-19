@@ -1,7 +1,7 @@
 
 #include "Common.mqh"
-#define XANH "green"
-#define DO "red"
+#define T "green"
+#define X "red"
 
 struct PriceTrendState
 {
@@ -76,8 +76,8 @@ TrendResult AnalyzeTrendSignal(const PriceTrendState &state){
    result.type  = "null";
    result.huong = "null";
    int n = state.count;
+   int thep = state.th;//add z
 
-   // ========= 4 PHẦN TỬ CUỐI =========
    if(n >= 4)
    {
       string a = state.trend_list[n-4];
@@ -85,22 +85,21 @@ TrendResult AnalyzeTrendSignal(const PriceTrendState &state){
       string c = state.trend_list[n-2];
       string d = state.trend_list[n-1];
 
-      if(a==DO && b==XANH && c==DO && d==XANH)
+      if(a==X && b==T && c==X && d==T)
       {
-         result.type  = TX_chanle;
+         result.type  = TX_SenKe4;
          result.huong = TypeBUY;
          return result;
       }
 
-      if(a==XANH && b==DO && c==XANH && d==DO)
+      if(a==X && b==T && c==X && d==T)
       {
-         result.type  = TX_chanle;
+         result.type  = TX_SenKe4;
          result.huong = TypeSELL;
          return result;
       }
    }
 
-   // ========= 5 PHẦN TỬ CUỐI =========
    if(n >= 5)
    {
       string a = state.trend_list[n-5];
@@ -109,28 +108,74 @@ TrendResult AnalyzeTrendSignal(const PriceTrendState &state){
       string d = state.trend_list[n-2];
       string e = state.trend_list[n-1];
 
-      if(a==DO && b==DO && c==XANH && d==XANH && e==DO)
+      if(a==X && b==X && c==T && d==T && e==X && thep == 0)   //X-X-T-T-X         => T    (1)
       {
          result.type  = TX_becau22;
          result.huong = TypeBUY;
          return result;
       }
 
-      if(a==DO && b==XANH && c==XANH && d==DO && e==DO)
+      if(a==X && b==T && c==T && d==X && e==X && thep == 1)    //X X T T X X          => X   (2)
       {
          result.type  = TX_becau22;
          result.huong = TypeSELL;
          return result;
       }
 
-      if(a==XANH && b==XANH && c==DO && d==DO && e==XANH)
+      if(a==X && b==T && c==T && d==X && e==X && thep == 1)    //X X T T X X T          => X    (3)
       {
          result.type  = TX_becau22;
          result.huong = TypeSELL;
          return result;
       }
 
-      if(a==XANH && b==DO && c==DO && d==XANH && e==XANH)
+      if(a==X && b==T && c==T && d==X && e==X)    //X X T T X X T T          => T    (4)
+      {
+         result.type  = TX_becau22;
+         result.huong = TypeSELL;
+         return result;
+      }
+
+       if(a==X && b==T && c==T && d==X && e==X)    //X X T T X X T T X         => T    (5)
+      {
+         result.type  = TX_becau22;
+         result.huong = TypeSELL;
+         return result;
+      }
+      // END MODEL //X-X-T-T-X   
+
+
+      if(a==T && b==T && c==X && d==X && e==T)  // T T X X T        => X (1)
+      {
+         result.type  = TX_becau22;
+         result.huong = TypeSELL;
+         return result;
+      }
+
+      
+
+     
+
+      if(a==T && b==X && c==X && d==T && e==T)   //T T X X T T   => T  (2)
+      {
+         result.type  = TX_becau22;
+         result.huong = TypeBUY;
+         return result;
+      }
+      if(a==T && b==X && c==X && d==T && e==T)   //T T X X T T X   => T (3)
+      {
+         result.type  = TX_becau22;
+         result.huong = TypeBUY;
+         return result;
+      }
+
+      if(a==T && b==X && c==X && d==T && e==T)   //T T X X T T X x  => X (4)
+      {
+         result.type  = TX_becau22;
+         result.huong = TypeBUY;
+         return result;
+      }
+       if(a==T && b==X && c==X && d==T && e==T)   //T T X X T T X X T  => X (5)
       {
          result.type  = TX_becau22;
          result.huong = TypeBUY;
