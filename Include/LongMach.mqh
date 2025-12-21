@@ -33,50 +33,119 @@ string CheckThreeCandlesPattern(string symbol)
 // PERIOD_M30
 // PERIOD_H1 ddang co lai~
 
-string CheckRSI57_43(string symbol, int periodRSI = 14)
+
+string CheckRSI57_43cac(string symbol, int periodRSI = 14)//type 02
 {
    double rsi[2];
-   if(CopyBuffer(iRSI(symbol, PERIOD_M5, periodRSI, PRICE_CLOSE), 0, 1, 2, rsi) < 2)
+   if(CopyBuffer(iRSI(symbol, PERIOD_M1, periodRSI, PRICE_CLOSE), 0, 1, 2, rsi) < 2)
       return TypeNULL;
 
    double prevRSI = rsi[1];
    double curRSI  = rsi[0];
 
    // RSI cắt lên 57 → BUY
-   if(prevRSI < 65 && curRSI >= 65)
+   double  TO  = 57;
+   double  NHO  = 43;
+
+   if(prevRSI < TO && curRSI >= TO)
       return TypeBUY;
 
    // RSI cắt xuống 43 → SELL
-   if(prevRSI > 35 && curRSI <= 35)
+   if(prevRSI > NHO && curRSI <= NHO)
       return TypeSELL;
 
    return TypeNULL;
 }
 
-string CheckRSI57_43cac(string symbol, int periodRSI = 14)
+string CheckRSI57(string symbol, int periodRSI = 14)//type 01
 {
-   // 65 và 35 khung m15 kết quả cực tốt .
-   // 448 
-   // 900$ 
-   // 900$ 
-   // 67 33 còn ác hơn ( ổn định cả 2 năm)
    double rsi[2];
-   if(CopyBuffer(iRSI(symbol, PERIOD_M15, periodRSI, PRICE_CLOSE), 0, 1, 2, rsi) < 2)
+   if(CopyBuffer(iRSI(symbol, PERIOD_M3, periodRSI, PRICE_CLOSE), 0, 1, 2, rsi) < 2)
       return TypeNULL;
 
    double prevRSI = rsi[1];
    double curRSI  = rsi[0];
 
    // RSI cắt lên 57 → BUY
-   if(prevRSI < 67 && curRSI >= 67)
+   double  TO  = 57;
+   double  NHO  = 43;
+
+   if(prevRSI < TO && curRSI >= TO)
       return TypeBUY;
 
    // RSI cắt xuống 43 → SELL
-   if(prevRSI > 33 && curRSI <= 33)
+   if(prevRSI > NHO && curRSI <= NHO)
       return TypeSELL;
 
    return TypeNULL;
 }
+
+string CheckRSIBullBear(string symbol, int periodRSI = 14)
+{
+   double rsi[3];
+   if(CopyBuffer(iRSI(symbol, PERIOD_M30, periodRSI, PRICE_CLOSE), 0, 1, 3, rsi) < 3)
+      return TypeNULL;
+
+   double rsi2 = rsi[2]; // cũ nhất
+   double rsi1 = rsi[1];
+   double rsi0 = rsi[0]; // mới nhất
+
+   // Bull: RSI tăng liên tục
+   if(rsi2 < rsi1 && rsi1 < rsi0)
+      return TypeBUY;
+
+   // Bear: RSI giảm liên tục
+   if(rsi2 > rsi1 && rsi1 > rsi0)
+      return TypeSELL;
+   return TypeNULL;
+}
+
+string CheckRSIBullBear2(string symbol, int periodRSI = 14)
+{
+   double rsi[3];
+   if(CopyBuffer(iRSI(symbol, PERIOD_H1, periodRSI, PRICE_CLOSE), 0, 1, 3, rsi) < 3)
+      return TypeNULL;
+
+   double rsi2 = rsi[2]; // cũ nhất
+   double rsi1 = rsi[1];
+   double rsi0 = rsi[0]; // mới nhất
+
+   // Bull: RSI tăng liên tục
+   if(rsi2 < rsi1 && rsi1 < rsi0)
+      return TypeBUY;
+
+   // Bear: RSI giảm liên tục
+   if(rsi2 > rsi1 && rsi1 > rsi0)
+      return TypeSELL;
+   return TypeNULL;
+}
+
+// string CheckRSI57_43cac(string symbol, int periodRSI = 14)
+// {
+//    // --- RSI
+//    double rsi[3];
+//    if(CopyBuffer(iRSI(symbol, PERIOD_M30, periodRSI, PRICE_CLOSE), 0, 1, 3, rsi) < 3)
+//       return TypeNULL;
+
+//    double rsiA = rsi[2]; // điểm A
+//    double rsiB = rsi[1]; // điểm B
+//    double rsiC = rsi[0];
+
+//    // =========================
+//    // PHÂN KỲ GIẢM – VÙNG 70 → SELL
+//    // A chạm 70+, B xuống dưới 70
+//    if(rsiA >= 71 && rsiB < 69)
+//       return TypeSELL;
+
+//    // =========================
+//    // PHÂN KỲ TĂNG – VÙNG 30 → BUY
+//    // A chạm 30-, B lên trên 30
+//    if(rsiA <= 29 && rsiB > 31)
+//       return TypeBUY;
+
+//    return TypeNULL;
+// }
+
 
 
 // RSI đi xuống chạm 43 → Short

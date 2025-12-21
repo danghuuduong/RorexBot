@@ -1,7 +1,7 @@
 
 #include "Common.mqh"
-#define T "green"
-#define X "red"
+#define T "TÀI"
+#define X "o"
 
 struct PriceTrendState
 {
@@ -12,8 +12,7 @@ struct PriceTrendState
 };
 
 // ================= INIT =================
-void InitPriceTrendState(PriceTrendState &state)
-{
+void InitPriceTrendState(PriceTrendState &state){
    state.init_price = 0;
    state.count = 0;
    state.isSetPrice = false;
@@ -39,7 +38,7 @@ void PushTrend(PriceTrendState &state, string value)// mã đã là 10 sẽ khô
 }
 
 // =============== UPDATE =================
-void UpdatePriceTrendState(PriceTrendState &state, string symbol)
+void CheckLongMachTX(PriceTrendState &state, string symbol)
 {
    double current_price = SymbolInfoDouble(symbol, SYMBOL_BID);
 
@@ -50,14 +49,14 @@ void UpdatePriceTrendState(PriceTrendState &state, string symbol)
       return;
    }
 
-   if(current_price >= state.init_price + 3)
+   if(current_price >= state.init_price + targetState)
    {
-      PushTrend(state, XANH);
+      PushTrend(state, T);
       state.init_price = current_price;
    }
-   else if(current_price <= state.init_price - 3)
+   else if(current_price <= state.init_price - targetState)
    {
-      PushTrend(state, DO);
+      PushTrend(state, X);
       state.init_price = current_price;
    }
 }
@@ -71,13 +70,16 @@ struct TrendResult
 };
 
 
-TrendResult AnalyzeTrendSignal(const PriceTrendState &state){
+TrendResult KQLongMachTX(const PriceTrendState &state)
+{
    TrendResult result;
    result.type  = "null";
    result.huong = "null";
-   int n = state.count;
-   int thep = state.th;//add z
 
+   int n = state.count;
+
+   // =====================
+   // CHECK NHANH (4 phần tử)
    if(n >= 4)
    {
       string a = state.trend_list[n-4];
@@ -85,14 +87,14 @@ TrendResult AnalyzeTrendSignal(const PriceTrendState &state){
       string c = state.trend_list[n-2];
       string d = state.trend_list[n-1];
 
-      if(a==X && b==T && c==X && d==T)
+      if(c==X && d==X)
       {
          result.type  = TX_SenKe4;
          result.huong = TypeBUY;
          return result;
       }
 
-      if(a==X && b==T && c==X && d==T)
+      if(a==T && b==T && c==T && d==T)
       {
          result.type  = TX_SenKe4;
          result.huong = TypeSELL;
@@ -100,106 +102,42 @@ TrendResult AnalyzeTrendSignal(const PriceTrendState &state){
       }
    }
 
-   if(n >= 5)
+   // =====================
+   // CHECK DÀI (>=10 phần tử)
+   if(n >= 6)
    {
-      string a = state.trend_list[n-5];
-      string b = state.trend_list[n-4];
-      string c = state.trend_list[n-3];
-      string d = state.trend_list[n-2];
-      string e = state.trend_list[n-1];
-
-      if(a==X && b==X && c==T && d==T && e==X && thep == 0)   //X-X-T-T-X         => T    (1)
-      {
-         result.type  = TX_becau22;
-         result.huong = TypeBUY;
-         return result;
-      }
-
-      if(a==X && b==T && c==T && d==X && e==X && thep == 1)    //X X T T X X          => X   (2)
-      {
-         result.type  = TX_becau22;
-         result.huong = TypeSELL;
-         return result;
-      }
-
-      if(a==X && b==T && c==T && d==X && e==X && thep == 1)    //X X T T X X T          => X    (3)
-      {
-         result.type  = TX_becau22;
-         result.huong = TypeSELL;
-         return result;
-      }
-
-      if(a==X && b==T && c==T && d==X && e==X)    //X X T T X X T T          => T    (4)
-      {
-         result.type  = TX_becau22;
-         result.huong = TypeSELL;
-         return result;
-      }
-
-       if(a==X && b==T && c==T && d==X && e==X)    //X X T T X X T T X         => T    (5)
-      {
-         result.type  = TX_becau22;
-         result.huong = TypeSELL;
-         return result;
-      }
-      // END MODEL //X-X-T-T-X   
-
-
-      if(a==T && b==T && c==X && d==X && e==T)  // T T X X T        => X (1)
-      {
-         result.type  = TX_becau22;
-         result.huong = TypeSELL;
-         return result;
-      }
-
       
+      string a5  = state.trend_list[n-5];
+      string a4  = state.trend_list[n-4];
+      string a3  = state.trend_list[n-3];
+      string a2  = state.trend_list[n-2];
+      string a1  = state.trend_list[n-1];
 
-     
-
-      if(a==T && b==X && c==X && d==T && e==T)   //T T X X T T   => T  (2)
+      // ===== SELL
+      if(
+         ( a5==X && a4==X && a3==T && a2==T && a1==X) 
+      )
       {
          result.type  = TX_becau22;
          result.huong = TypeBUY;
          return result;
       }
-      if(a==T && b==X && c==X && d==T && e==T)   //T T X X T T X   => T (3)
-      {
-         result.type  = TX_becau22;
-         result.huong = TypeBUY;
-         return result;
-      }
 
-      if(a==T && b==X && c==X && d==T && e==T)   //T T X X T T X x  => X (4)
+
+      if(
+         ( a5==T && a4==T && a3==X && a2==X && a1==T) 
+      )
       {
-         result.type  = TX_becau22;
-         result.huong = TypeBUY;
-         return result;
-      }
-       if(a==T && b==X && c==X && d==T && e==T)   //T T X X T T X X T  => X (5)
-      {
-         result.type  = TX_becau22;
-         result.huong = TypeBUY;
+         result.type  = TX_becau22B;
+         result.huong = TypeSELL;
          return result;
       }
    }
 
-   return result; 
+   return result;
 }
 
-void LogInitPrice(const PriceTrendState &state)
-{
-   if(!state.isSetPrice) return;
 
-   double ask = SymbolInfoDouble(_Symbol, SYMBOL_ASK);
-   double bid = SymbolInfoDouble(_Symbol, SYMBOL_BID);
-
-   PrintFormat(
-      "Init= %.*f | ASK= %.*f | BID= %.*f",
-      _Digits, state.init_price,
-      _Digits, ask,
-      _Digits, bid
-   );
-}
 void LogTrendArray(const PriceTrendState &state)
 {
    string log = "[";
