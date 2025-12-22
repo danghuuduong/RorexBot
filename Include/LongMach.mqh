@@ -34,51 +34,53 @@ string CheckThreeCandlesPattern(string symbol)
 // PERIOD_H1 ddang co lai~
 
 
-string CheckRSI57_43cac(string symbol, int periodRSI = 14)//type 02
+string handleRSI_57_43(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
 {
    double rsi[2];
-   if(CopyBuffer(iRSI(symbol, PERIOD_M1, periodRSI, PRICE_CLOSE), 0, 1, 2, rsi) < 2)
+
+   int rsiHandle = iRSI(symbol, tf, periodRSI, PRICE_CLOSE);
+   if(rsiHandle == INVALID_HANDLE)
+      return TypeNULL;
+
+   if(CopyBuffer(rsiHandle, 0, 1, 2, rsi) < 2)
       return TypeNULL;
 
    double prevRSI = rsi[1];
    double curRSI  = rsi[0];
 
-   // RSI cắt lên 57 → BUY
-   double  TO  = 57;
-   double  NHO  = 43;
-
-   if(prevRSI < TO && curRSI >= TO)
+   if(prevRSI < 57 && curRSI >= 57)
       return TypeBUY;
 
-   // RSI cắt xuống 43 → SELL
-   if(prevRSI > NHO && curRSI <= NHO)
+   if(prevRSI > 43 && curRSI <= 43)
       return TypeSELL;
 
    return TypeNULL;
 }
 
-string CheckRSI57(string symbol, int periodRSI = 14)//type 01
+
+string handleRSI_67_33(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
 {
    double rsi[2];
-   if(CopyBuffer(iRSI(symbol, PERIOD_M3, periodRSI, PRICE_CLOSE), 0, 1, 2, rsi) < 2)
+
+   int rsiHandle = iRSI(symbol, tf, periodRSI, PRICE_CLOSE);
+   if(rsiHandle == INVALID_HANDLE)
+      return TypeNULL;
+
+   if(CopyBuffer(rsiHandle, 0, 1, 2, rsi) < 2)
       return TypeNULL;
 
    double prevRSI = rsi[1];
    double curRSI  = rsi[0];
 
-   // RSI cắt lên 57 → BUY
-   double  TO  = 57;
-   double  NHO  = 43;
-
-   if(prevRSI < TO && curRSI >= TO)
+   if(prevRSI < 67 && curRSI >= 67)
       return TypeBUY;
 
-   // RSI cắt xuống 43 → SELL
-   if(prevRSI > NHO && curRSI <= NHO)
+   if(prevRSI > 33 && curRSI <= 33)
       return TypeSELL;
 
    return TypeNULL;
 }
+
 
 string CheckRSIBullBear(string symbol, int periodRSI = 14)
 {
