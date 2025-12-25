@@ -67,16 +67,22 @@ string handleRSIExtreme(string symbol, ENUM_TIMEFRAMES tf)
 //==================== 4. EMA9 / EMA21 + Volume ====================
 string handleEMA_Volume(string symbol, ENUM_TIMEFRAMES tf)
 {
-   double ema9[2], ema21[2], vol[2];
+   double ema9[2], ema21[2];
+   long   vol[2];
+
+   ArraySetAsSeries(ema9,  true);
+   ArraySetAsSeries(ema21, true);
+   ArraySetAsSeries(vol,   true);
+
    int hEma9  = iMA(symbol, tf, 9, 0, MODE_EMA, PRICE_CLOSE);
    int hEma21 = iMA(symbol, tf, 21, 0, MODE_EMA, PRICE_CLOSE);
 
-   if(hEma9==INVALID_HANDLE || hEma21==INVALID_HANDLE)
+   if(hEma9 == INVALID_HANDLE || hEma21 == INVALID_HANDLE)
       return TypeNULL;
 
-   if(CopyBuffer(hEma9,0,0,2,ema9)<2 ||
-      CopyBuffer(hEma21,0,0,2,ema21)<2 ||
-      CopyTickVolume(symbol,tf,0,2,vol)<2)
+   if(CopyBuffer(hEma9,  0, 0, 2, ema9)  < 2 ||
+      CopyBuffer(hEma21, 0, 0, 2, ema21) < 2 ||
+      CopyTickVolume(symbol, tf, 0, 2, vol) < 2)
       return TypeNULL;
 
    if(ema9[1] < ema21[1] && ema9[0] > ema21[0] && vol[0] > vol[1])
@@ -87,6 +93,7 @@ string handleEMA_Volume(string symbol, ENUM_TIMEFRAMES tf)
 
    return TypeNULL;
 }
+
 
 //==================== 5. Price Action – Engulfing ====================
 string handleEngulfing(string symbol, ENUM_TIMEFRAMES tf)
