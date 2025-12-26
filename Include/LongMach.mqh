@@ -42,11 +42,17 @@ string handleRSI_57_43(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
    if(rsiHandle == INVALID_HANDLE)
       return TypeNULL;
 
-   if(CopyBuffer(rsiHandle, 0, 1, 2, rsi) < 2)
+   // Lấy bar 0 và bar 1
+   if(CopyBuffer(rsiHandle, 0, 0, 2, rsi) < 2)
+   {
+      IndicatorRelease(rsiHandle);
       return TypeNULL;
+   }
 
-   double prevRSI = rsi[1];
-   double curRSI  = rsi[0];
+   double curRSI  = rsi[0]; // bar hiện tại
+   double prevRSI = rsi[1]; // bar trước
+
+   IndicatorRelease(rsiHandle);
 
    if(prevRSI < 57 && curRSI >= 57)
       return TypeBUY;
@@ -56,6 +62,7 @@ string handleRSI_57_43(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
 
    return TypeNULL;
 }
+
 
 
 string handleRSI_67_33(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
