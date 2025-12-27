@@ -78,48 +78,54 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
 
    int n = state.count;
 
-   // =====================
-   // CHECK NHANH (4 phần tử)
+   // xử lý 4 cây cản tàu
    if(n >= 4)
    {
-      string a = state.trend_list[n-4];
-      string b = state.trend_list[n-3];
-      string c = state.trend_list[n-2];
-      string d = state.trend_list[n-1];
+      // string a5  = state.trend_list[n-5];
+      string a4  = state.trend_list[n-4];
+      string a3  = state.trend_list[n-3];
+      string a2  = state.trend_list[n-2];
+      string a1  = state.trend_list[n-1];
 
-      if(c==X && d==X)
+      if(a4==X && a3==X && a2==X && a1==X)
       {
-         result.type  = TX_SenKe4;
+         result.type  = TX_be4;
          result.huong = TypeBUY;
          return result;
       }
 
-      if(a==T && b==T && c==T && d==T)
+       if(a4==T && a3==T && a2==T && a1==T)
       {
-         result.type  = TX_SenKe4;
+         result.type  = TX_be4;
          result.huong = TypeSELL;
          return result;
       }
    }
 
-   // =====================
-   // CHECK DÀI (>=10 phần tử)
    if(n >= 6)
    {
-      
+      string a6  = state.trend_list[n-6];
       string a5  = state.trend_list[n-5];
       string a4  = state.trend_list[n-4];
       string a3  = state.trend_list[n-3];
       string a2  = state.trend_list[n-2];
       string a1  = state.trend_list[n-1];
 
-      // ===== SELL
       if(
-         ( a5==X && a4==X && a3==T && a2==T && a1==X) 
+         (a5==X && a4==X && a3==T && a2==T && a1==X) 
       )
       {
          result.type  = TX_becau22;
          result.huong = TypeBUY;
+         return result;
+      }
+
+      if(
+         ( a6==X && a5==X && a4==T && a3==T && a2==X && a1==X) 
+      )
+      {
+         result.type  = TX_becau22;
+         result.huong = TypeSELL;
          return result;
       }
 
@@ -128,8 +134,17 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
          ( a5==T && a4==T && a3==X && a2==X && a1==T) 
       )
       {
-         result.type  = TX_becau22B;
+         result.type  = TX_becau22;
          result.huong = TypeSELL;
+         return result;
+      }
+
+      if(
+         ( a6==T && a5==T && a4==X && a3==X && a2==T && a1==T) 
+      )
+      {
+         result.type  = TX_becau22;
+         result.huong = TypeBUY;
          return result;
       }
    }
