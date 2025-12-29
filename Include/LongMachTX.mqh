@@ -1,6 +1,6 @@
 
 #include "Common.mqh"
-#define T "TÀI"
+#define T "T"
 #define X "o"
 
 struct PriceTrendState
@@ -8,7 +8,8 @@ struct PriceTrendState
    double init_price;          
    string trend_list[10];      
    int    count;               
-   bool   isSetPrice;          
+   bool   isSetPrice;     
+   bool   isChanged;         
 };
 
 // ================= INIT =================
@@ -16,6 +17,7 @@ void InitPriceTrendState(PriceTrendState &state){
    state.init_price = 0;
    state.count = 0;
    state.isSetPrice = false;
+   state.isChanged = false;
 
    for(int i=0;i<10;i++)
       state.trend_list[i] = "";
@@ -26,12 +28,14 @@ void PushTrend(PriceTrendState &state, string value)// mã đã là 10 sẽ khô
 {
    if(state.count < 10)
    {
+      state.isChanged = true;
       state.trend_list[state.count] = value;  // 0  khi chỗ này lên 9 ở dưới sẽ là 10
       state.count = state.count + 1; // 1  ==> trên 9 thì đây 10
+     
       return;
    }
    //count 10: index 9
-
+   state.isChanged = true;
    for(int i=0; i<9 ;i++)state.trend_list[i] = state.trend_list[i+1]; // sẽ lấy index từ 0-8 gán lấy giá 1-9 ( bỏ cái 0 đầu tiên)
    state.trend_list[9] = value; // sau đó gán giá trị mới vào cuối cùng
    // => count luôn luôn 10 . 
@@ -87,20 +91,43 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
       string a2  = state.trend_list[n-2];
       string a1  = state.trend_list[n-1];
 
-      if(a4==X && a3==X && a2==X && a1==X)
-      {
-         result.type  = TX_be4;
-         result.huong = TypeBUY;
-         return result;
-      }
-
-       if(a4==T && a3==T && a2==T && a1==T)
+      if(a3==X && a2==T && a1==T)
       {
          result.type  = TX_be4;
          result.huong = TypeSELL;
          return result;
       }
+
+       if(a3==T && a2==X && a1==X)
+      {
+         result.type  = TX_be4;
+         result.huong = TypeBUY;
+         return result;
+      }
    }
+
+   // if(n >= 4)
+   // {
+   //    // string a5  = state.trend_list[n-5];
+   //    string a4  = state.trend_list[n-4];
+   //    string a3  = state.trend_list[n-3];
+   //    string a2  = state.trend_list[n-2];
+   //    string a1  = state.trend_list[n-1];
+
+   //    if(a4==X && a3==X && a2==X && a1==X)
+   //    {
+   //       result.type  = TX_be4;
+   //       result.huong = TypeBUY;
+   //       return result;
+   //    }
+
+   //     if(a4==T && a3==T && a2==T && a1==T)
+   //    {
+   //       result.type  = TX_be4;
+   //       result.huong = TypeSELL;
+   //       return result;
+   //    }
+   // }
 
    if(n >= 6)
    {
