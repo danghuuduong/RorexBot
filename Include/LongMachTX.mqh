@@ -35,9 +35,10 @@ void PushTrend(PriceTrendState &state, string value)// mã đã là 10 sẽ khô
       return;
    }
    //count 10: index 9
-   state.isChanged = true;
+  
    for(int i=0; i<9 ;i++)state.trend_list[i] = state.trend_list[i+1]; // sẽ lấy index từ 0-8 gán lấy giá 1-9 ( bỏ cái 0 đầu tiên)
    state.trend_list[9] = value; // sau đó gán giá trị mới vào cuối cùng
+    state.isChanged = true;
    // => count luôn luôn 10 . 
 }
 
@@ -53,12 +54,12 @@ void CheckLongMachTX(PriceTrendState &state, string symbol)
       return;
    }
 
-   if(current_price >= state.init_price + targetState)
+   if(current_price >= state.init_price + target3)
    {
       PushTrend(state, T);
       state.init_price = current_price;
    }
-   else if(current_price <= state.init_price - targetState)
+   else if(current_price <= state.init_price - target3)
    {
       PushTrend(state, X);
       state.init_price = current_price;
@@ -106,28 +107,27 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
       }
    }
 
-   // if(n >= 4)
-   // {
-   //    // string a5  = state.trend_list[n-5];
-   //    string a4  = state.trend_list[n-4];
-   //    string a3  = state.trend_list[n-3];
-   //    string a2  = state.trend_list[n-2];
-   //    string a1  = state.trend_list[n-1];
+   if(n >= 4)
+   {
+      string a4  = state.trend_list[n-4];
+      string a3  = state.trend_list[n-3];
+      string a2  = state.trend_list[n-2];
+      string a1  = state.trend_list[n-1];
 
-   //    if(a4==X && a3==X && a2==X && a1==X)
-   //    {
-   //       result.type  = TX_be4;
-   //       result.huong = TypeBUY;
-   //       return result;
-   //    }
+      if(a4==X && a3==T && a2==X && a1==T)
+      {
+         result.type  = TX_SenKe4B;
+         result.huong = TypeBUY;
+         return result;
+      }
 
-   //     if(a4==T && a3==T && a2==T && a1==T)
-   //    {
-   //       result.type  = TX_be4;
-   //       result.huong = TypeSELL;
-   //       return result;
-   //    }
-   // }
+       if(a4==T && a3==X && a2==T && a1==X)
+      {
+         result.type  = TX_SenKe4B;
+         result.huong = TypeSELL;
+         return result;
+      }
+   }
 
    if(n >= 6)
    {

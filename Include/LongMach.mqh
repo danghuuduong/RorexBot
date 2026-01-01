@@ -33,6 +33,8 @@ string CheckThreeCandlesPattern(string symbol)
 // PERIOD_M30
 // PERIOD_H1 ddang co lai~
 
+input int InputRSI_57_UP = 57;
+input int InputRSI_57_DOWN= 43;
 
 string handleRSI_57_43(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
 {
@@ -54,16 +56,18 @@ string handleRSI_57_43(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
 
    IndicatorRelease(rsiHandle);
 
-   if(prevRSI < 57 && curRSI >= 57)
+   if(prevRSI < InputRSI_57_UP && curRSI >= InputRSI_57_UP)
       return TypeBUY;
 
-   if(prevRSI > 43 && curRSI <= 43)
+   if(prevRSI > InputRSI_57_DOWN && curRSI <= InputRSI_57_DOWN)
       return TypeSELL;
 
    return TypeNULL;
 }
 
 
+input int InputRSI_67_UP = 67;
+input int InputRSI_67_DOWN= 33;
 
 string handleRSI_67_33(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
 {
@@ -79,10 +83,10 @@ string handleRSI_67_33(string symbol, ENUM_TIMEFRAMES tf, int periodRSI = 14)
    double prevRSI = rsi[1];
    double curRSI  = rsi[0];
 
-   if(prevRSI < 67 && curRSI >= 67)
+   if(prevRSI < InputRSI_67_UP && curRSI >= InputRSI_67_UP)
       return TypeBUY;
 
-   if(prevRSI > 33 && curRSI <= 33)
+   if(prevRSI > InputRSI_67_DOWN && curRSI <= InputRSI_67_DOWN)
       return TypeSELL;
 
    return TypeNULL;
