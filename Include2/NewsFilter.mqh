@@ -1,4 +1,4 @@
-#include "Common.mqh"
+#include "Common2.mqh"
 
 // ===== INPUT =====
 // input group "====== CÀI ĐẶT Tin Tức ======";
