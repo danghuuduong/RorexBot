@@ -1,8 +1,8 @@
-#property strict
+ #property strict
 
 // ==== CẤU HÌNH PANEL ======
 input group "====== CÀI ĐẶT PANEL ======";
-static input int PANEL_WIDTH     = 250; // Chiều rộng panel
+static input int PANEL_WIDTH     = 300; // Chiều rộng panel
 static input int PANEL_HEIGHT    = 400; // Chiều cao panel
 static input int PANEL_FONT_SIZE = 12;  // Kích thước chữ
 
@@ -17,7 +17,7 @@ color BTN_TEXT_COLOR      = clrBlack;   // Chữ nút
 #define BTN_CLOSEALL "btn_close_all"
 
 // Số dòng hiển thị tối đa trong panel
-#define MAX_PANEL_LINES 4
+#define MAX_PANEL_LINES 3
 
 //+------------------------------------------------------------------+
 // Tạo panel
@@ -65,15 +65,14 @@ void CreatePanel()
 //+------------------------------------------------------------------+
 // Cập nhật panel động
 //+------------------------------------------------------------------+
-void UpdatePanel(int totalOrders, bool hasNews, int minutesToNews, int hoursToResume)
+void UpdatePanel(int totalOrders, bool istopTime, datetime stopTime)
 {
     // Tạo mảng text cho từng dòng
     string lines[MAX_PANEL_LINES];
+    datetime now = TimeCurrent();
     lines[0] = "Tổng số lệnh: " + IntegerToString(totalOrders);
-    lines[1] = hasNews ? "Có tin tức" : "Không có tin tức";
-    lines[2] = (minutesToNews > 0) ? ("Sắp có tin: " + IntegerToString(minutesToNews) + " phút nữa") : "";
-    lines[3] = (hoursToResume > 0) ? ("Đóng vì tin: " + IntegerToString(hoursToResume) + " giờ nữa sẽ giao dịch lại") : "";
-
+    lines[1] = istopTime ? "Mở Section: Đang dừng" : "Mở Section: ✅ Đang hoạt động";
+    lines[2] = istopTime ? ("Mở lại sau: " + IntegerToString((stopTime - now)) + " giờ") : " ";
     // Cập nhật text cho từng label
     for(int i=0; i<MAX_PANEL_LINES; i++)
     {

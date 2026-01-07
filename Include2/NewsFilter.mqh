@@ -1,79 +1,94 @@
 #include "Common.mqh"
 
-bool isStart = true;
-
 // ===== INPUT =====
-input int StopBeforeNewsMin     = 60; // Dừng Mở Section trước Tin (phút)
-input int DisableAfterNewsHours = 16; // Tắt EA sau tin (giờ)
+// input group "====== CÀI ĐẶT Tin Tức ======";
+// input bool   isStopNews         = true; // Sài chức năng
+// input int StopBeforeNewsMin     = 60; // Chặn mở Section khi sắp ra tin(phút)
+// input int DisableAfterNewsHours = 16; // Tắt Bot khi tin ra (giờ)
 
-datetime timeResumeTrade = 0;
-
-// ===============================
-// kiểm tra tin mạnh sắp ra
-// ===============================
-bool IsHighImpactNewsComing(int minutesAhead, int &secondsToNews)
+void GetUpcomingNews()
 {
+   //--- Lấy tin tức trong 7 ngày tới
    datetime now = TimeCurrent();
-   datetime to  = now + minutesAhead * 60;
-
-   MqlCalendarValue values[];
-   int count = CalendarValueHistory(values, now, to);
-   if(count <= 0)
-      return false;
-
-   for(int i = 0; i < count; i++)
+   datetime week_from_now = now + 7 * 86400;
+   
+   //--- Lấy tin từ nhiều quốc gia/quốc gia
+   string countries[] = {"US", "EU", "GB", "JP", "CN", "CA", "AU", "NZ"};
+   
+   for(int c = 0; c < ArraySize(countries); c++)
    {
-      MqlCalendarEvent event;
-      if(!CalendarEventById(values[i].event_id, event))
-         continue;
-
-      if(event.importance == CALENDAR_IMPORTANCE_HIGH)
+      PrintFormat("\n=== UPCOMING NEWS FOR %s ===", countries[c]);
+      
+      MqlCalendarValue values[];
+      if(CalendarValueHistory(values, now, week_from_now, countries[c]))
       {
-         secondsToNews = (int)(values[i].time - now);
-         return true;
+         //--- Sắp xếp theo thời gian
+         ArraySort(values);
+         
+         //--- Lọc tin trong tương lai
+         int future_count = 0;
+         for(int i = 0; i < ArraySize(values); i++)
+         {
+            if(values[i].time > now) // Chỉ lấy tin chưa xảy ra
+            {
+               future_count++;
+               DisplayNewsInfo(values[i]);
+            }
+         }
+         
+         if(future_count == 0)
+         {
+            Print("No upcoming news for " + countries[c]);
+         }
       }
    }
-   return false;
 }
 
-// ===============================
-// logic né tin + delay
-// ===============================
-void HandleNewsFilter()
+// Hàm hiển thị thông tin tin tức
+void DisplayNewsInfo(MqlCalendarValue &value)
+{
+   MqlCalendarEvent event_info;
+   if(CalendarEventById(value.event_id, event_info))
+   {
+      string time_left = GetTimeLeft(value.time);
+      string impact = GetImpactLevel(event_info.importance);
+      
+      PrintFormat("%s | In: %s | %s | %s ",
+                  TimeToString(value.time, TIME_DATE|TIME_MINUTES),
+                  time_left,
+                  event_info.name,
+                  impact);
+   }
+}
+
+// Tính thời gian còn lại đến khi tin ra
+string GetTimeLeft(datetime news_time)
 {
    datetime now = TimeCurrent();
+   int seconds_left = int(news_time - now);
+   
+   if(seconds_left < 0) return "PAST";
+   
+   int days = seconds_left / 86400;
+   int hours = (seconds_left % 86400) / 3600;
+   int minutes = (seconds_left % 3600) / 60;
+   
+   if(days > 0)
+      return StringFormat("%dd %dh", days, hours);
+   else if(hours > 0)
+      return StringFormat("%dh %dm", hours, minutes);
+   else
+      return StringFormat("%dm", minutes);
+}
 
-   // ---- đang chạy, kiểm tra tin ----
-   int secToNews = 0;
-   if(isStart && IsHighImpactNewsComing(StopBeforeNewsMin, secToNews))
+// Xác định mức độ ảnh hưởng
+string GetImpactLevel(int importance)
+{
+   switch(importance)
    {
-      PrintFormat(
-         "⚠️ ⚠️----------------- Sắp ra tin mạnh sau %d phút %d giây → DỪNG TRADE",
-         secToNews / 60, secToNews % 60
-      );
-
-      isStart = false;
-      timeResumeTrade = now + DisableAfterNewsHours * 60 * 60;
-      return;
-   }
-
-   // ---- đang bị khóa ----
-   if(!isStart && timeResumeTrade > 0)
-   {
-      int secLeft = (int)(timeResumeTrade - now);
-
-      if(secLeft > 0)
-      {
-         PrintFormat(
-            "🔒 EA đang khóa – còn %d phút %d giây sẽ mở lại",
-            secLeft / 60, secLeft % 60
-         );
-      }
-      else
-      {
-         isStart = true;
-         timeResumeTrade = 0;
-         Print("✅ Hết thời gian né tin – EA hoạt động lại");
-      }
+      case 1: return "LOW";
+      case 2: return "MEDIUM";
+      case 3: return "HIGH";
+      default: return "N/A";
    }
 }
