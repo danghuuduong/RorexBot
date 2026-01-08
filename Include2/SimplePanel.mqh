@@ -171,3 +171,18 @@ void OnChartEvent(const int id,const long &l,const double &d,const string &s)
    if(id==CHARTEVENT_OBJECT_CLICK && s==BTN_CLOSEALL)
       Print("❌ Đã đóng tất cả lệnh");
 }
+
+
+
+double TotalProfitBySymbol(string symbol)
+{
+   double total = 0;
+   for(int i = PositionsTotal()-1; i >= 0; i--)
+   {
+      if(PositionGetSymbol(i) == symbol)
+      {
+         total += PositionGetDouble(POSITION_PROFIT);
+      }
+   }
+   return total;
+}

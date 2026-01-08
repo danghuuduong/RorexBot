@@ -41,150 +41,6 @@ void OpenOrder(ENUM_ORDER_TYPE type,double lot,int sectionId)
 
 }
 
-void CloseSectionsIfProfitOver()
-{
-   if(PositionsTotal() == 0 && ArraySize(Section_List) > 0 && isOderLandau == true) {
-            ArrayFree(Section_Profit_List);
-            ArrayFree(Section_List);
-            isOderLandau = false;
-   }
-
-   if(ArraySize(Section_List) > 0) {
-      for(int i = ArraySize(Section_List) - 1; i >= 0; i--)
-      {
-         double totalProfit = 0.0;
-         int count = 0;
-
-         // 1️⃣ Tính tổng profit các vị thế trong Section
-         for(int j = PositionsTotal() - 1; j >= 0; j--)
-         {
-            ulong ticket = PositionGetTicket(j);
-            if(PositionSelectByTicket(ticket))
-            {
-                int magic = (int)PositionGetInteger(POSITION_MAGIC);
-               string comment = PositionGetString(POSITION_COMMENT);
-               string symbol  = PositionGetString(POSITION_SYMBOL);
-
-               string commentB = IntegerToString(Section_List[i].id) + "-" + _Symbol;
-
-               if(magic == MagicEA && symbol == _Symbol && comment == commentB)
-               {
-                     totalProfit += PositionGetDouble(POSITION_PROFIT);
-                     count++;
-               }
-            }
-         }
-        
-      
-      if(count > 0)
-         {
-
-            double profitCut = (int)(totalProfit * 100) / 100.0;
-
-            // StopLossValue truyền vào là số dương (vd: 200)
-            bool reached = (totalProfit >= TpForSection) 
-                        || (totalProfit <= -SLForSection);
-            
-            if(totalProfit <= -SLForSection && isStopSection_WhenSL){
-             stopTime = TimeCurrent() + TimeChanBot * 60 * 60; // 16 tiếng
-             isStopSection = true;
-            }
-            AddOrUpdateSectionProfit(Section_List[i].id, profitCut, reached);
-            
-            if (reached && Tp_ALL_Section == 0)
-            {
-                CloseOrdersWithCommentA(Section_List[i].id);
-            }
-
-
-
-           
-         }
-      }
-
-
-   }
-
-
-  
-  
-}
-
-void CloseOrdersWithCommentA(int sectionId)
-{
-    for(int i = PositionsTotal()-1; i >= 0; i--)
-    {
-        if(PositionGetSymbol(i) == _Symbol)
-        {
-            ulong ticket = PositionGetInteger(POSITION_TICKET);
-            string comment = PositionGetString(POSITION_COMMENT);
-             string commentB = IntegerToString(sectionId) + "-" + _Symbol;
-
-            //  if(comment == IntegerToString(sectionId) || StringFind(comment, IntegerToString(sectionId)) >= 0)
-             
-            if(comment == commentB)
-            {
-                // Lấy thông tin lệnh
-                string symbol = PositionGetString(POSITION_SYMBOL);
-                double volume = PositionGetDouble(POSITION_VOLUME);
-                int position_type = (int)PositionGetInteger(POSITION_TYPE);
-                double profit = PositionGetDouble(POSITION_PROFIT);
-                // Tạo request đóng lệnh
-                MqlTradeRequest request;
-                MqlTradeResult result;
-                
-                ZeroMemory(request);
-                ZeroMemory(result);
-                
-                request.action = TRADE_ACTION_DEAL;
-                request.position = ticket;
-                request.symbol = symbol;
-                request.volume = volume;
-                request.deviation = 150;
-                
-                // Đặt giá đóng (ngược với loại lệnh)
-                if(position_type == POSITION_TYPE_BUY)
-                {
-                    request.type = ORDER_TYPE_SELL;
-                    request.price = SymbolInfoDouble(symbol, SYMBOL_BID);
-                }
-                else
-                {
-                    request.type = ORDER_TYPE_BUY;
-                    request.price = SymbolInfoDouble(symbol, SYMBOL_ASK);
-                }
-                
-                request.comment = "Closed by EA";
-                
-               //  Gửi lệnh đóng
-                if(!OrderSend(request, result))
-                {
-                  //   Print("============================================================================================================ LỖI ", profit, "  SECTION: ", sectionId, GetLastError()," ============================================================================================================ " );
-                }
-                else
-                {
-                  //   Print("============================================================================================================Đã đóng lệnh ", profit, " SECTION: ", sectionId," ============================================================================================================ " );
-                }
-            }
-        }
-    }
-    
-    // === THÊM PHẦN NÀY ===
-      if( ArraySize(Section_List)> 0) {
-         for(int k = ArraySize(Section_List) - 1; k >= 0; k--)
-         {
-            if(Section_List[k].id == sectionId)
-            {
-                  Section_List[k].isTrading = false; // Đánh dấu đã đóng và không giao dịch nữa
-                  // Print("Đã đóng section ", sectionId, " không giao dịch nữa.");
-                  break;
-            }
-         }
-      }
-    
-}
-
-
 void CloseAllOrdersIfSymbolProfitOver(double profitTarget, double lossLimit) // lossLimit là số dương 200
 {
    double totalProfit = 0.0;
@@ -260,7 +116,7 @@ void CloseAllOrdersIfSymbolProfitOver(double profitTarget, double lossLimit) // 
       {
          if(isStopSection_WhenSL){
             stopTime = TimeCurrent() + TimeChanBot * 60 * 60; // 16 tiếng
-            isStopSection = true;
+            isStop = true;
         }
         //  Alert(StringFormat("[%s] ĐÃ DỪNG LỖ! Tổng lỗ: %.2f", _Symbol, totalProfit));
         //  PlaySound("alert.wav");
@@ -268,19 +124,3 @@ void CloseAllOrdersIfSymbolProfitOver(double profitTarget, double lossLimit) // 
    }
 }
 
-
-
-
-
-double TotalProfitBySymbol(string symbol)
-{
-   double total = 0;
-   for(int i = PositionsTotal()-1; i >= 0; i--)
-   {
-      if(PositionGetSymbol(i) == symbol)
-      {
-         total += PositionGetDouble(POSITION_PROFIT);
-      }
-   }
-   return total;
-}
