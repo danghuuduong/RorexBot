@@ -80,12 +80,24 @@ void CloseSectionsIfProfitOver()
          {
 
             double profitCut = (int)(totalProfit * 100) / 100.0;
-            bool reached = (totalProfit >= TpForSection);
-            AddOrUpdateSectionProfit(Section_List[i].id, profitCut, reached);
 
-            if(reached && Tp_ALL_Section == 0){
-               CloseOrdersWithCommentA(Section_List[i].id);
+            // StopLossValue truyền vào là số dương (vd: 200)
+            bool reached = (totalProfit >= TpForSection) 
+                        || (totalProfit <= -SLForSection);
+            
+            if(totalProfit <= -SLForSection && isStopSection_WhenSL){
+             stopTime = TimeCurrent() + TimeChanBot * 60 * 60; // 16 tiếng
+             isStopSection = true;
             }
+            AddOrUpdateSectionProfit(Section_List[i].id, profitCut, reached);
+            
+            if (reached && Tp_ALL_Section == 0)
+            {
+                CloseOrdersWithCommentA(Section_List[i].id);
+            }
+
+
+
            
          }
       }
@@ -173,7 +185,7 @@ void CloseOrdersWithCommentA(int sectionId)
 }
 
 
-void CloseAllOrdersIfSymbolProfitOver(double profitTarget = 20, double lossLimit = 200) // lossLimit là số dương 200
+void CloseAllOrdersIfSymbolProfitOver(double profitTarget, double lossLimit) // lossLimit là số dương 200
 {
    double totalProfit = 0.0;
    int totalPositions = PositionsTotal();
