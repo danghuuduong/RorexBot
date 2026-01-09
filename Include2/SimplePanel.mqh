@@ -121,7 +121,9 @@ void UpdatePanel(int totalOrders,bool isStopTime,datetime stopTime)
       0,
       "panel_line_2",
       OBJPROP_TEXT,
-      "Tổng Profit: " + DoubleToString(totalProfit,2) +(Tp_ALL_Section > 0 ? "/" + DoubleToString(Tp_ALL_Section,2) : "")
+      "Profit: " + DoubleToString(totalProfit,2) +
+      (Tp_ALL_Section > 0 ? "/" + DoubleToString(Tp_ALL_Section,2) : "") +
+      " - Số dư: " + DoubleToString(AccountInfoDouble(ACCOUNT_BALANCE),2)
    );
 
    ObjectSetInteger(

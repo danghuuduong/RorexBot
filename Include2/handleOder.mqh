@@ -91,14 +91,10 @@ void CloseSectionsIfProfitOver()
             }
             AddOrUpdateSectionProfit(Section_List[i].id, profitCut, reached);
             
-            if (reached && Tp_ALL_Section == 0)
+            if (reached)
             {
                 CloseOrdersWithCommentA(Section_List[i].id);
             }
-
-
-
-           
          }
       }
 
