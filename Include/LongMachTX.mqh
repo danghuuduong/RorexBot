@@ -83,29 +83,6 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
 
    int n = state.count;
 
-   // xử lý 4 cây cản tàu
-   if(n >= 4)
-   {
-      // string a5  = state.trend_list[n-5];
-      string a4  = state.trend_list[n-4];
-      string a3  = state.trend_list[n-3];
-      string a2  = state.trend_list[n-2];
-      string a1  = state.trend_list[n-1];
-
-      if(a3==X && a2==T && a1==T)
-      {
-         result.type  = TX_be4;
-         result.huong = TypeSELL;
-         return result;
-      }
-
-       if(a3==T && a2==X && a1==X)
-      {
-         result.type  = TX_be4;
-         result.huong = TypeBUY;
-         return result;
-      }
-   }
 
    if(n >= 4)
    {
@@ -116,15 +93,15 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
 
       if(a4==X && a3==T && a2==X && a1==T)
       {
-         result.type  = TX_SenKe4B;
-         result.huong = TypeBUY;
+         result.type  = Type1_1;
+         result.huong = TypeSELL;
          return result;
       }
 
        if(a4==T && a3==X && a2==T && a1==X)
       {
-         result.type  = TX_SenKe4B;
-         result.huong = TypeSELL;
+         result.type  = Type1_1;
+         result.huong = TypeBUY;
          return result;
       }
    }
@@ -142,7 +119,7 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
          (a5==X && a4==X && a3==T && a2==T && a1==X) 
       )
       {
-         result.type  = TX_becau22;
+         result.type  = Type2_2;
          result.huong = TypeBUY;
          return result;
       }
@@ -151,7 +128,7 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
          ( a6==X && a5==X && a4==T && a3==T && a2==X && a1==X) 
       )
       {
-         result.type  = TX_becau22;
+         result.type  = Type2_2;
          result.huong = TypeSELL;
          return result;
       }
@@ -161,7 +138,7 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
          ( a5==T && a4==T && a3==X && a2==X && a1==T) 
       )
       {
-         result.type  = TX_becau22;
+         result.type  = Type2_2;
          result.huong = TypeSELL;
          return result;
       }
@@ -170,7 +147,7 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
          ( a6==T && a5==T && a4==X && a3==X && a2==T && a1==T) 
       )
       {
-         result.type  = TX_becau22;
+         result.type  = Type2_2;
          result.huong = TypeBUY;
          return result;
       }
