@@ -153,6 +153,30 @@ TrendResult KQLongMachTX(const PriceTrendState &state)
       }
    }
 
+   if(n >= 6)
+   {
+      string a6  = state.trend_list[n-6];
+      string a5  = state.trend_list[n-5];
+      string a4  = state.trend_list[n-4];
+      string a3  = state.trend_list[n-3];
+      string a2  = state.trend_list[n-2];
+      string a1  = state.trend_list[n-1];
+
+      if(a4==T && a3==T && a2==T && a1==T)
+      {
+         result.type  = Type4;
+         result.huong = TypeSELL;
+         return result;
+      }
+
+      if(a4==X && a3==X && a2==X && a1==X  )
+      {
+         result.type  = Type4;
+         result.huong = TypeBUY;
+         return result;
+      }
+   }
+
    return result;
 }
 
